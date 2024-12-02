@@ -1374,6 +1374,18 @@ int LAGr_MaximumMatching(
                    // mate_init is NULL
     char *msg);
 
+int LAGraph_MaxFlow(
+    //inputs
+    LAGraph_Graph G,
+    GrB_Index* S, //source node index
+    GrB_Index* T, // sink node index
+    //outputs
+    int* f,
+    //inout
+    char* msg
+);
+
+
 #if defined ( __cplusplus )
 }
 #endif
