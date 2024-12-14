@@ -1377,8 +1377,8 @@ int LAGr_MaximumMatching(
 int LAGraph_MaxFlow(
     //inputs
     LAGraph_Graph G,
-    GrB_Index* S, //source node index
-    GrB_Index* T, // sink node index
+    GrB_Index S, //source node index
+    GrB_Index T, // sink node index
     //outputs
     int* f,
     //inout
