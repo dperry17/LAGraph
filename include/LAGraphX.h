@@ -1374,7 +1374,7 @@ int LAGr_MaximumMatching(
                    // mate_init is NULL
     char *msg);
 
-int LAGraph_MaxFlow(
+int LAGr_MaxFlow(
     //inputs
     LAGraph_Graph G,
     GrB_Index S, //source node index
