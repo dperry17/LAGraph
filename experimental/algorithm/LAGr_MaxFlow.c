@@ -750,8 +750,8 @@ int LAGr_MaxFlow(LAGraph_Graph G, GrB_Index S, GrB_Index T, double * f, char *ms
 
   //create utility vectors, Matrix, and ops for mapping
   GrB_Type JType = (n > INT32_MAX) ? GrB_INT64 : GrB_INT32;
-  // BUG:
-//  GrB_Type JType = GrB_INT64 ; // (n > INT32_MAX) ? GrB_INT64 : GrB_INT32;
+  // was BUG, now works in GraphBLAS 10.0.3:
+  JType = GrB_INT64 ;
   GRB_TRY(GrB_Vector_new(&Jvec, JType, n));
   GRB_TRY(GrB_Matrix_new(&map, GrB_CompareTuple, n,n));
   GRB_TRY(GxB_UnaryOp_new(&GrB_extractJ, F_UNARY(MF_extractJ), GrB_INT64, GrB_CompareTuple, "MF_extractJ", GRB_EXTRACTJ_STR));
