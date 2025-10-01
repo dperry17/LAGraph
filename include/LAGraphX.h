@@ -1515,6 +1515,8 @@ int LAGr_MaxFlow(
     char* msg
 );
 
+LAGRAPHX_PUBLIC
+int LAGraph_CorrelationClustering(GrB_Vector* clusters, const LAGraph_Graph G, char* msg);
 
 #if defined ( __cplusplus )
 }
