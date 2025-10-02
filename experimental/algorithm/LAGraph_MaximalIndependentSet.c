@@ -125,7 +125,7 @@ int LAGraph_MaximalIndependentSet       // maximal independent set
     GRB_TRY (GrB_Vector_new (&empty, GrB_BOOL, n)) ;
     GRB_TRY (GrB_Vector_new (&Seed, GrB_UINT64, n)) ;
     GRB_TRY (GrB_Vector_new (&score, GrB_FP32, n)) ;
-    GRB_TRY (GrB_Vector_new (&iset, GrB_BOOL, n)) ;
+    GRB_TRY (GrB_Vector_new (&iset, GrB_UINT64, n)) ;
 
     // degree = (float) G->out_degree
     GRB_TRY (GrB_assign (degree, NULL, NULL, G->out_degree, GrB_ALL, n, NULL)) ;
@@ -248,7 +248,7 @@ int LAGraph_MaximalIndependentSet       // maximal independent set
 
         // add new members to independent set
         // iset{new_members} = true
-        GRB_TRY (GrB_assign (iset, new_members, NULL, (bool) true,
+        GRB_TRY (GrB_assign (iset, new_members, NULL, score,
             GrB_ALL, n, GrB_DESC_S)) ;
 
         // remove new members from set of candidates
@@ -302,12 +302,12 @@ int LAGraph_MaximalIndependentSet       // maximal independent set
             LG_ASSERT_MSG (nstall <= 32, LAGRAPH_CONVERGENCE_FAILURE,
                 "method has stalled") ;
             // recreate the random number seeds with a new starting seed
-            LG_TRY (LAGraph_Random_Seed (Seed, seed + nstall, msg)) ;
+            //LG_TRY (LAGraph_Random_Seed (Seed, seed + nstall, msg)) ;
         }
         last_ncandidates = ncandidates ;
 
         // get the next random Seed vector
-        LG_TRY (LAGraph_Random_Next (Seed, msg)) ;
+        //LG_TRY (LAGraph_Random_Next (Seed, msg)) ;
     }
 
     //--------------------------------------------------------------------------

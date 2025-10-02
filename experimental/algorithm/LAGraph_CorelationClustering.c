@@ -80,7 +80,7 @@ int LAGraph_CorrelationClustering(GrB_Vector* clusters, const LAGraph_Graph G, c
   //make graph symmetric
   GRB_TRY(GrB_assign(A, A, NULL, A, GrB_ALL, n, GrB_ALL, n, GrB_DESC_SCT0)) ;
 
-  GRB_TRY(GrB_Vector_new(&pivots, GrB_BOOL, n)) ;
+  GRB_TRY(GrB_Vector_new(&pivots, GrB_INT64, n)) ;
   GRB_TRY(GrB_Vector_new(&Seed, GrB_UINT64, n)) ;
   GRB_TRY(GrB_Vector_new(&tuple_vector, neighbor_tuple, n)) ;
   GRB_TRY(GrB_Scalar_new(&empty, GrB_BOOL)) ;
@@ -91,12 +91,12 @@ int LAGraph_CorrelationClustering(GrB_Vector* clusters, const LAGraph_Graph G, c
   LG_TRY(LAGraph_Cached_OutDegree(G, msg)) ;
   LG_TRY(LAGraph_Cached_NSelfEdges(G, msg)) ;
   LG_TRY(LAGraph_MaximalIndependentSet(&pivots, G, 0, NULL, msg)) ;
-
+  GxB_print(pivots, 5);
   //assign pivot positions in clusters based on index
-  GRB_TRY (GrB_assign (Seed, NULL, NULL, 0, GrB_ALL, n, NULL)) ;
-  LG_TRY (LAGraph_Random_Seed (Seed, 0, msg)) ;
-  LG_TRY (LAGraph_Random_Next (Seed, msg)) ;
-  GRB_TRY(GrB_assign(Seed, pivots, NULL, empty, GrB_ALL, n, GrB_DESC_C)) ;
+  /* GRB_TRY (GrB_assign (Seed, NULL, NULL, 0, GrB_ALL, n, NULL)) ; */
+  /* LG_TRY (LAGraph_Random_Seed (Seed, 0, msg)) ; */
+  /* LG_TRY (LAGraph_Random_Next (Seed, msg)) ; */
+  /* GRB_TRY(GrB_assign(Seed, pivots, NULL, empty, GrB_ALL, n, GrB_DESC_C)) ; */
   
   //create semiring
   GRB_TRY(GrB_Scalar_new(&thunk, GrB_BOOL)) ;
@@ -112,10 +112,10 @@ int LAGraph_CorrelationClustering(GrB_Vector* clusters, const LAGraph_Graph G, c
   //GxB_print(pivots, 5);
   
   //get all clusters through single mxv operation
-  GRB_TRY(GrB_vxm(tuple_vector, pivots, NULL, clustering, Seed, A, GrB_DESC_C)) ;
-  GRB_TRY(GrB_apply(*clusters, pivots, NULL, get_id, tuple_vector, GrB_DESC_C)) ;
-  GRB_TRY (GrB_assign (*clusters, pivots, NULL, 0, GrB_ALL, n, NULL)) ;
-  GRB_TRY(GrB_apply(*clusters, pivots, NULL, GrB_ROWINDEX_INT64, *clusters, 0, NULL)) ;
+  GRB_TRY(GrB_vxm(tuple_vector, pivots, NULL, clustering, pivots, A, GrB_DESC_SC)) ;
+  GRB_TRY(GrB_apply(*clusters, pivots, NULL, get_id, tuple_vector, GrB_DESC_SC)) ;
+  GRB_TRY (GrB_assign (*clusters, pivots, NULL, 0, GrB_ALL, n, GrB_DESC_S)) ;
+  GRB_TRY(GrB_apply(*clusters, pivots, NULL, GrB_ROWINDEX_INT64, *clusters, 0, GrB_DESC_S)) ;
   
   LG_FREE_ALL;
   return (GrB_SUCCESS) ;

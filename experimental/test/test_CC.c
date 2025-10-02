@@ -10,7 +10,7 @@ char msg[LAGRAPH_MSG_LEN];
 LAGraph_Graph G = NULL;
 GrB_Matrix A = NULL;
 #define LEN 512
-#define NTESTS 4
+#define NTESTS 1
 char filename[LEN + 1];
 
 typedef struct{
@@ -19,7 +19,7 @@ typedef struct{
 }test_info;
 
 test_info tests[] = {
-  //{"karate.mtx", LAGraph_ADJACENCY_UNDIRECTED},
+  {"mcl.mtx", LAGraph_ADJACENCY_UNDIRECTED},
   {"belgium_osm.mtx", LAGraph_ADJACENCY_UNDIRECTED},
   {"rgg_n_2_19_s0.mtx", LAGraph_ADJACENCY_UNDIRECTED},
   {"delaunay_n20.mtx", LAGraph_ADJACENCY_UNDIRECTED},
@@ -54,7 +54,7 @@ void test_CorrelationClustering(void) {
     time = LAGraph_WallClockTime() - time ;
     printf("%s\n", msg);
     printf("Time for Correlation clustering is: %lf", time) ;
-    //GxB_print(clusters, 5);
+    GxB_print(clusters, 5);
 
    
     //free work
