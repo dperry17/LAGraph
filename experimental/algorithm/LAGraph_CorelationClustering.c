@@ -30,7 +30,7 @@
 
 JIT_STR(
     typedef struct {
-      int64_t j;
+      int64_t i;
       double seed;
     } LG_neighbor_tuple;
 ,NTS)    
@@ -41,7 +41,7 @@ JIT_STR(
                         uint64_t jx, const uint64_t *y, uint64_t iy, uint64_t jy,
                         const bool *thunk) {
       
-      z->j = jx;
+      z->i = iy;
       z->seed = *x;
     },
 CC_CTUPLE)
@@ -54,7 +54,7 @@ CC_MINT)
 
 JIT_STR(
 	void LG_getId(int64_t* z, const LG_neighbor_tuple* x){
-	  *z = x->j;
+	  *z = x->i;
 	},
 CC_ID)
 
@@ -109,7 +109,7 @@ int LAGraph_CorrelationClustering(GrB_Vector* clusters, const LAGraph_Graph G, c
   LG_neighbor_tuple id = {0, 0} ;
   GRB_TRY(GrB_Monoid_new_UDT(&tuple_min_monoid, tuple_min, &id)) ;
   GRB_TRY(GrB_Semiring_new(&clustering, tuple_min_monoid, create_tuple)) ;
-
+  //GxB_print(pivots, 5);
   
   //get all clusters through single mxv operation
   GRB_TRY(GrB_vxm(tuple_vector, pivots, NULL, clustering, Seed, A, GrB_DESC_C)) ;

@@ -19,6 +19,7 @@ typedef struct{
 }test_info;
 
 test_info tests[] = {
+  //{"karate.mtx", LAGraph_ADJACENCY_UNDIRECTED},
   {"belgium_osm.mtx", LAGraph_ADJACENCY_UNDIRECTED},
   {"rgg_n_2_19_s0.mtx", LAGraph_ADJACENCY_UNDIRECTED},
   {"delaunay_n20.mtx", LAGraph_ADJACENCY_UNDIRECTED},
@@ -30,6 +31,9 @@ void test_CorrelationClustering(void) {
   LAGraph_Init(msg);
 //OK(LG_SET_BURBLE(1));
   OK(LG_SET_BURBLE(0));
+  int inner_threads = 0, outer_threads = 0;
+  LAGraph_GetNumThreads(&outer_threads, &inner_threads, msg) ;
+  printf("num inner threads: %d\n", inner_threads) ;
   for(uint8_t test = 0; test < NTESTS; test++){
     GrB_Matrix A=NULL;
     GrB_Vector clusters = NULL ;
@@ -50,7 +54,7 @@ void test_CorrelationClustering(void) {
     time = LAGraph_WallClockTime() - time ;
     printf("%s\n", msg);
     printf("Time for Correlation clustering is: %lf", time) ;
-    //    GxB_print(clusters, 5);
+    //GxB_print(clusters, 5);
 
    
     //free work
