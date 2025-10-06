@@ -2,6 +2,51 @@
 #include "LG_internal.h"
 
 #undef LG_FREE_WORK
+#define LG_FREE_WORK                                                           \
+  {                                                                            \
+    GrB_free(&I);                                                              \
+    GrB_free(&pivot_id);                                                       \
+    GrB_free(&theta);                                                          \
+    GrB_free(&X);                                                              \
+    GrB_free(&val);                                                            \
+  }
+
+#undef LG_FREE_ALL
+#define LG_FREE_ALL				\
+  LG_FREE_WORK
+
+
+int LG_compute_objective(GrB_Matrix A, GrB_Vector C, const GrB_Index n, const double plus_weight, const double minus_weight, double* score, char* msg) {
+
+  GrB_Vector I = NULL, pivot_id = NULL ;
+  GrB_Matrix theta = NULL, X = NULL ;
+  GrB_Scalar val = NULL ;
+  GrB_Index n_clustered = 0, n_unclustered = 0 ;
+
+  GRB_TRY(GrB_Vector_new(&I, GrB_INT64, n)) ;
+  GRB_TRY(GrB_Vector_new(&pivot_id, GrB_INT64, n)) ;
+  GRB_TRY(GrB_Matrix_new(&theta, GrB_BOOL, n, n)) ;
+  GRB_TRY(GrB_Matrix_new(&X, GrB_BOOL, n, n)) ;
+  GRB_TRY(GrB_Scalar_new(&val, GrB_BOOL)) ;
+  GRB_TRY(GrB_Scalar_setElement(val, true)) ;
+  
+  GRB_TRY(GxB_Vector_extractTuples_Vector(I, pivot_id, C, NULL)) ;
+  GRB_TRY(GrB_Matrix_build(theta, pivot_id, I, val, NULL)) ; //n by n matrix with n values
+
+  //X<A, struct> = A .^ theta, where X holds the unclustered edges
+  GRB_TRY(GrB_eWiseMult(X, A, NULL, GxB_LXOR_INT64, A, theta, GrB_DESC_S)) ;
+
+  GRB_TRY(GrB_Matrix_nvals(&n_unclustered, X)) ;
+  GRB_TRY(GrB_Matrix_nvals(&n_clustered, theta)) ;
+
+  LG_FREE_ALL;
+  *score = (n_clustered * plus_weight) + (n_unclustered * minus_weight) ;
+
+  return (GrB_SUCCESS) ;
+}
+
+
+#undef LG_FREE_WORK
 #define LG_FREE_WORK				                                \
 {						                                \
  GrB_free(&pivots) ;					                        \
@@ -91,13 +136,7 @@ int LAGraph_CorrelationClustering(GrB_Vector* clusters, const LAGraph_Graph G, c
   LG_TRY(LAGraph_Cached_OutDegree(G, msg)) ;
   LG_TRY(LAGraph_Cached_NSelfEdges(G, msg)) ;
   LG_TRY(LAGraph_MaximalIndependentSet(&pivots, G, 0, NULL, msg)) ;
-  GxB_print(pivots, 5);
-  //assign pivot positions in clusters based on index
-  /* GRB_TRY (GrB_assign (Seed, NULL, NULL, 0, GrB_ALL, n, NULL)) ; */
-  /* LG_TRY (LAGraph_Random_Seed (Seed, 0, msg)) ; */
-  /* LG_TRY (LAGraph_Random_Next (Seed, msg)) ; */
-  /* GRB_TRY(GrB_assign(Seed, pivots, NULL, empty, GrB_ALL, n, GrB_DESC_C)) ; */
-  
+    
   //create semiring
   GRB_TRY(GrB_Scalar_new(&thunk, GrB_BOOL)) ;
   GRB_TRY(GrB_Scalar_setElement(thunk, true)) ;
@@ -116,6 +155,11 @@ int LAGraph_CorrelationClustering(GrB_Vector* clusters, const LAGraph_Graph G, c
   GRB_TRY(GrB_apply(*clusters, pivots, NULL, get_id, tuple_vector, GrB_DESC_SC)) ;
   GRB_TRY (GrB_assign (*clusters, pivots, NULL, 0, GrB_ALL, n, GrB_DESC_S)) ;
   GRB_TRY(GrB_apply(*clusters, pivots, NULL, GrB_ROWINDEX_INT64, *clusters, 0, GrB_DESC_S)) ;
+
+  double score = 0;
+  LG_TRY(LG_compute_objective(A, *clusters, n, -1, 1, &score, msg)) ;
+
+  printf("The objective score is: %lf\n", score);
   
   LG_FREE_ALL;
   return (GrB_SUCCESS) ;

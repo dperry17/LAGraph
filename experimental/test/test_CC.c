@@ -10,7 +10,7 @@ char msg[LAGRAPH_MSG_LEN];
 LAGraph_Graph G = NULL;
 GrB_Matrix A = NULL;
 #define LEN 512
-#define NTESTS 1
+#define NTESTS 5
 char filename[LEN + 1];
 
 typedef struct{
@@ -54,7 +54,7 @@ void test_CorrelationClustering(void) {
     time = LAGraph_WallClockTime() - time ;
     printf("%s\n", msg);
     printf("Time for Correlation clustering is: %lf", time) ;
-    GxB_print(clusters, 5);
+    //GxB_print(clusters, 5);
 
    
     //free work
